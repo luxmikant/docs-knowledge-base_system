@@ -1,0 +1,4 @@
+# file: E:\assignment python full stack ai\backend\app\urls.py
+# hypothesis_version: 6.151.12
+
+['analytics', 'auth/login', 'create_task', 'document_detail', 'documents', 'documents_endpoint', 'get_analytics', 'login', 'search', 'search_documents', 'tasks', 'tasks/<int:task_id>', 'tasks/create', 'tasks_endpoint', 'update_task']

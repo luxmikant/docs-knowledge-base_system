@@ -1,0 +1,4 @@
+# Optional AI/semantic-search acceleration dependencies.
+# Install these when you want transformer-quality embeddings and FAISS indexing.
+sentence-transformers==2.2.2
+faiss-cpu==1.7.4; platform_system != "Windows"

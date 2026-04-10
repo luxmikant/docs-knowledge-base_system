@@ -1,0 +1,22 @@
+Title: Cloud Deployment Runbook
+Team: Platform Engineering
+
+Release Pipeline:
+- Every merge to main triggers CI checks: lint, unit tests, integration tests.
+- If all checks pass, a release artifact is built and tagged.
+
+Deployment Steps:
+1. Deploy to staging environment.
+2. Run smoke tests on critical APIs.
+3. Verify health endpoint and database connectivity.
+4. Promote to production with rolling deployment.
+
+Reliability and Rollback:
+- Health check endpoint: /health
+- Error budget alert threshold: 5% failed requests over 10 minutes.
+- Automatic rollback is triggered if error rate exceeds threshold for 3 consecutive checks.
+
+Operational Notes:
+- Keep environment variables consistent across staging and production.
+- Store secrets in a secure secret manager, not in source code.
+- Record deployment time, version, and owner in the release log.

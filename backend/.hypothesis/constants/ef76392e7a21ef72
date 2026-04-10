@@ -1,0 +1,4 @@
+# file: E:\assignment python full stack ai\backend\app\authentication.py
+# hypothesis_version: 6.151.12
+
+[100, '._-', '@', 'Authorization', 'Bearer', 'HS256', 'Invalid token', 'RS256', 'Token expired', 'User not found', '[^A-Za-z0-9_.-]', '_', 'bearer ', 'clerk_user', 'email', 'email_address', 'email_addresses', 'exp', 'iat', 'preferred_username', 'role', 'sub', 'user_id', 'username', 'verify_aud', 'verify_iss', 'verify_signature']

@@ -1,0 +1,22 @@
+Title: Semantic Search Basics
+Category: AI Knowledge Base
+
+What semantic search means:
+Semantic search finds documents by meaning, not only exact keyword matches.
+It can return relevant content even when the query uses different words from the document.
+
+How this system works at a high level:
+1. Document text is converted into vector embeddings.
+2. A user query is converted into another embedding.
+3. Similarity is measured using vector math such as cosine similarity.
+4. The engine returns top_k most relevant documents.
+
+Important practical details:
+- Better chunking and clean text usually improve relevance.
+- top_k controls how many results are returned.
+- Relevance scores can be compared across results from the same query.
+
+Example user question:
+"How does vector similarity help search by meaning?"
+Expected behavior:
+A document about embeddings and cosine similarity should rank near the top.

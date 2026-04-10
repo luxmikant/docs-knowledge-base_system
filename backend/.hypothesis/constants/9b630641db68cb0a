@@ -1,0 +1,4 @@
+# file: E:\assignment python full stack ai\backend\app\services\embedding_service.py
+# hypothesis_version: 6.151.12
+
+[-1.0, 1.0, 384, 'False', '\\s+', '\\w+', 'all-MiniLM-L6-v2', 'big', 'doc_id', 'doc_id_map.pkl', 'empty', 'faiss_index.bin', 'numpy_index.pkl', 'rb', 'score', 'true', 'utf-8', 'wb']

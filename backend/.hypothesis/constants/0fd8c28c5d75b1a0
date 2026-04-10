@@ -1,0 +1,4 @@
+# file: E:\assignment python full stack ai\backend\config\urls.py
+# hypothesis_version: 6.151.12
+
+['admin/', 'api/', 'app.urls']
