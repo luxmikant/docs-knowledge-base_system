@@ -72,18 +72,7 @@ Return Top-K Results with Score + Chunk Source
 
 ### System Design
 
-```mermaid
-graph TD
-    A["Presentation Layer<br/>React Vite App"] -->|REST API| B["API Gateway<br/>Django REST Framework"]
-    B -->|JWT + RBAC| C["Core Services<br/>Business Logic"]
-    C -->|Query/Index| D["Embedding Service<br/>SentenceTransformers + FAISS"]
-    C -->|Read/Write| E["Database Layer<br/>MySQL"]
-    C -->|Log Events| F["Activity Service<br/>Structured Events"]
-    D -->|Vector Search| G["FAISS Index<br/>In-Memory"]
-    E -->|Store| H["Documents<br/>Chunks<br/>Tasks<br/>Logs"]
-    I["Data Processing<br/>Text Extraction<br/>Chunking<br/>Embedding Gen"] -->|Index| G
-    J["External Services<br/>OAuth/Matterial"] -->|Integrate| B
-```
+![System Architecture Diagram](./diagram.png)
 
 ### Folder Structure
 
