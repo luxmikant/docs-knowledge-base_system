@@ -7,7 +7,7 @@ export default function Layout({ children }) {
 
   const onLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/auth');
   };
 
   return (
@@ -16,10 +16,22 @@ export default function Layout({ children }) {
         <h1>AI Task Hub</h1>
         <p className="sidebar-sub">Knowledge + Workflows</p>
         <nav>
-          <NavLink to="/tasks">Tasks</NavLink>
-          <NavLink to="/documents">Documents</NavLink>
-          <NavLink to="/search">Search</NavLink>
-          {isAdmin && <NavLink to="/analytics">Analytics</NavLink>}
+          <NavLink to="/tasks">📋 Tasks</NavLink>
+          <NavLink to="/documents">📄 Documents</NavLink>
+          
+          <div className="nav-section">
+            <small className="nav-label">Search</small>
+            <NavLink to="/search" className="nav-item">🔍 Basic Search</NavLink>
+            <NavLink to="/search/advanced" className="nav-item">✨ Advanced Search</NavLink>
+          </div>
+          
+          {isAdmin && (
+            <div className="nav-section">
+              <small className="nav-label">Admin</small>
+              <NavLink to="/analytics" className="nav-item">📊 Analytics</NavLink>
+              <NavLink to="/admin/index" className="nav-item">🛠️ Index Manager</NavLink>
+            </div>
+          )}
         </nav>
       </aside>
 

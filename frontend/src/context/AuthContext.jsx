@@ -37,6 +37,45 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const signup = async (username, email, password, adminSignupCode = '', role = 'user') => {
+    setLoading(true);
+    try {
+      const payload = {
+        username,
+        email,
+        password,
+        role,
+      };
+      
+      if (adminSignupCode) {
+        payload.admin_signup_code = adminSignupCode;
+      }
+
+      const response = await api.post('/auth/signup', payload);
+      const nextToken = response.data.token;
+      const nextUser = response.data.user;
+      localStorage.setItem('token', nextToken);
+      localStorage.setItem('user', JSON.stringify(nextUser));
+      setToken(nextToken);
+      setUser(nextUser);
+      return { ok: true };
+    } catch (error) {
+      let message = 'Signup failed';
+      if (error?.response?.data?.error) {
+        message = error.response.data.error;
+      } else if (error?.response?.data?.username?.[0]) {
+        message = error.response.data.username[0];
+      } else if (error?.response?.data?.email?.[0]) {
+        message = error.response.data.email[0];
+      } else if (error?.response?.data?.admin_signup_code?.[0]) {
+        message = error.response.data.admin_signup_code[0];
+      }
+      return { ok: false, message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -63,6 +102,7 @@ export function AuthProvider({ children }) {
       isAdmin: user?.role === 'admin',
       loading,
       login,
+      signup,
       logout,
       refreshMe,
     }),

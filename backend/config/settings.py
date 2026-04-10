@@ -196,6 +196,9 @@ JWT_SECRET = os.getenv('JWT_SECRET', 'jwt-secret-change-in-production')
 JWT_EXPIRATION_HOURS = int(os.getenv('JWT_EXPIRATION_HOURS', '24'))
 ADMIN_SIGNUP_CODE = os.getenv('ADMIN_SIGNUP_CODE', '').strip()
 
+# Search Quality
+MIN_RELEVANCE_SCORE = float(os.getenv('MIN_RELEVANCE_SCORE', '0.4'))
+
 # CORS configuration
 cors_allowed_origins_raw = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').strip()
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_allowed_origins_raw.split(',') if origin.strip()]

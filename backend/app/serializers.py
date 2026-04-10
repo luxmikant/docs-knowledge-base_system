@@ -100,11 +100,55 @@ class DocumentUploadSerializer(serializers.Serializer):
 
 
 class SearchRequestSerializer(serializers.Serializer):
-    query = serializers.CharField(min_length=1, max_length=2000)
-    top_k = serializers.IntegerField(min_value=1, max_value=50, required=False, default=5)
+    """Request contract for semantic search."""
+    query = serializers.CharField(
+        min_length=1, 
+        max_length=2000,
+        help_text="Search query text"
+    )
+    top_k = serializers.IntegerField(
+        min_value=1, 
+        max_value=100, 
+        required=False, 
+        default=10,
+        help_text="Number of results to return"
+    )
+    min_score = serializers.FloatField(
+        min_value=0.0,
+        max_value=1.0,
+        required=False,
+        default=0.3,
+        help_text="Minimum similarity score threshold (0-1)"
+    )
+    task_id = serializers.IntegerField(
+        required=False,
+        allow_null=True,
+        help_text="Optional task ID to filter results"
+    )
+
+
+class ChunkResultSerializer(serializers.Serializer):
+    """Response format for a single search result (chunk)."""
+    chunk_id = serializers.IntegerField()
+    document_id = serializers.IntegerField()
+    filename = serializers.CharField()
+    chunk_index = serializers.IntegerField()
+    text = serializers.CharField()
+    relevance_score = serializers.FloatField(min_value=0.0, max_value=1.0)
+    token_count = serializers.IntegerField()
+    uploaded_by = serializers.CharField()
+
+
+class SearchResponseSerializer(serializers.Serializer):
+    """Response contract for search results."""
+    query = serializers.CharField()
+    results = ChunkResultSerializer(many=True)
+    count = serializers.IntegerField()
+    metadata = serializers.DictField()
 
 
 class SearchResultSerializer(serializers.Serializer):
+    """Legacy result format for backward compatibility."""
     document_id = serializers.IntegerField()
     filename = serializers.CharField()
     relevance_score = serializers.FloatField()

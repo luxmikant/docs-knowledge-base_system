@@ -123,3 +123,42 @@ class ActivityLog(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.action_type}"
+
+
+class Chunk(models.Model):
+    """Document chunks for semantic search (with embeddings stored in FAISS index)."""
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='chunks')
+    chunk_index = models.IntegerField()  # Order of chunk within document
+    chunk_text = models.TextField()
+    token_count = models.IntegerField(default=0)  # Approximate token count for this chunk
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'chunks'
+        indexes = [
+            models.Index(fields=['document']),
+            models.Index(fields=['created_at']),
+        ]
+        ordering = ['document', 'chunk_index']
+        unique_together = [['document', 'chunk_index']]
+    
+    def __str__(self):
+        return f"Chunk {self.chunk_index} - {self.document.filename}"
+
+
+class TaskDocument(models.Model):
+    """Association between tasks and documents for task-aware search."""
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='documents')
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='tasks')
+    added_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'task_documents'
+        indexes = [
+            models.Index(fields=['task']),
+            models.Index(fields=['document']),
+        ]
+        unique_together = [['task', 'document']]
+    
+    def __str__(self):
+        return f"{self.task.title} - {self.document.filename}"

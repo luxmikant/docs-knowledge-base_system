@@ -21,10 +21,21 @@ urlpatterns = [
 
     # Semantic search
     path('search', views.search_documents, name='search_documents'),
+    path('search/hybrid', views.hybrid_search_documents, name='hybrid_search_documents'),
+
+    # Task-aware search and documents
+    path('tasks/<int:task_id>/documents', views.get_task_documents, name='get_task_documents'),
+    path('tasks/documents/add', views.add_documents_to_task, name='add_documents_to_task'),
 
     # Analytics
     path('analytics', views.get_analytics, name='get_analytics'),
 
     # Users
     path('users', views.list_users, name='list_users'),
+
+    # Index Optimization (Admin Only)
+    path('admin/index/batch', views.batch_index_documents, name='batch_index_documents'),
+    path('admin/index/stats', views.get_index_stats, name='get_index_stats'),
+    path('admin/index/optimize', views.optimize_index, name='optimize_index'),
+    path('admin/index/rebuild', views.rebuild_search_index, name='rebuild_search_index'),
 ]

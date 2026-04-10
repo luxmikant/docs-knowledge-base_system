@@ -1,17 +1,18 @@
 """Embedding service for semantic search using sentence-transformers and FAISS."""
 
-import hashlib
+from __future__ import annotations
+
 import os
 import pickle
 import re
 from pathlib import Path
+from typing import Optional, Tuple, List, Dict
 
 import numpy as np
 from django.conf import settings
 
 try:
     import faiss  # type: ignore
-
     FAISS_AVAILABLE = True
 except Exception:
     faiss = None
@@ -21,6 +22,55 @@ try:
     from sentence_transformers import SentenceTransformer
 except Exception:
     SentenceTransformer = None
+
+
+class EmbeddingModel:
+    """Singleton wrapper for SentenceTransformer model."""
+    
+    _instance: Optional[EmbeddingModel] = None
+    _model: Optional[object] = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    def __init__(self):
+        """Initialize model once on first instantiation."""
+        if self._model is None:
+            self._load_model()
+    
+    def _load_model(self):
+        """Load SentenceTransformer model. Raises error if unavailable."""
+        if SentenceTransformer is None:
+            raise RuntimeError(
+                'sentence-transformers library not installed. '
+                'Install with: pip install sentence-transformers'
+            )
+        
+        try:
+            print("Loading embedding model 'all-MiniLM-L6-v2'...")
+            self._model = SentenceTransformer('all-MiniLM-L6-v2')
+            print("✓ Embedding model loaded successfully")
+        except Exception as e:
+            raise RuntimeError(
+                f'Failed to load SentenceTransformer model: {str(e)}'
+            ) from e
+    
+    def encode(self, text: str, normalize: bool = True) -> np.ndarray:
+        """Encode text to embedding."""
+        if self._model is None:
+            raise RuntimeError('Embedding model not initialized')
+        
+        embedding = self._model.encode(text, normalize_embeddings=normalize)
+        return np.asarray(embedding, dtype=np.float32)
+    
+    @property
+    def dimension(self) -> int:
+        """Get embedding dimension."""
+        if self._model is None:
+            return 384  # Default for all-MiniLM-L6-v2
+        return self._model.get_sentence_embedding_dimension()
 
 
 class NumpyIndexFlatIP:
@@ -58,98 +108,59 @@ class EmbeddingService:
     def __init__(self):
         self.dimension = 384
         self.index = self._new_index()
-        self.doc_id_map = {}
-        self.model = None
-        self.using_fallback = False
+        self.doc_id_map: Dict[int, int] = {}
+        self.model = EmbeddingModel()  # Get singleton instance
         self.load_index()
-        self._initialize_model()
 
     def _new_index(self):
-        return faiss.IndexFlatIP(self.dimension) if FAISS_AVAILABLE else NumpyIndexFlatIP(self.dimension)
-
-    def _initialize_model(self):
-        """Initialize sentence-transformer model with graceful fallback."""
-        if os.getenv('DISABLE_TRANSFORMER_MODEL', 'False').lower() == 'true':
-            self.model = None
-            self.using_fallback = True
-            return
-
-        if SentenceTransformer is None:
-            self.model = None
-            self.using_fallback = True
-            return
-
-        try:
-            self.model = SentenceTransformer('all-MiniLM-L6-v2')
-        except Exception:
-            # Keep semantic search available even when model download/init fails.
-            self.model = None
-            self.using_fallback = True
+        """Create a new FAISS or NumPy-backed index."""
+        if FAISS_AVAILABLE:
+            return faiss.IndexFlatIP(self.dimension)
+        return NumpyIndexFlatIP(self.dimension)
 
     @staticmethod
-    def _normalize_text(text):
+    def _normalize_text(text: str) -> str:
+        """Normalize text for embedding."""
         if not text:
             return ''
-        text = re.sub(r'\s+', ' ', text)
-        return text.strip()
+        text = re.sub(r'\s+', ' ', text).strip()
+        return text
 
-    def _fallback_embedding(self, text):
-        """Generate deterministic normalized embedding without external model access."""
-        vector = np.zeros(self.dimension, dtype=np.float32)
-        tokens = re.findall(r'\w+', text.lower())
-
-        if not tokens:
-            vector[0] = 1.0
-            return vector
-
-        for token in tokens:
-            digest = hashlib.sha256(token.encode('utf-8')).digest()
-            index = int.from_bytes(digest[:4], byteorder='big') % self.dimension
-            sign = 1.0 if digest[4] % 2 == 0 else -1.0
-            vector[index] += sign
-
-        norm = np.linalg.norm(vector)
-        if norm == 0:
-            vector[0] = 1.0
-            return vector
-        return (vector / norm).astype(np.float32)
-
-    def generate_embedding(self, text):
-        """Generate a 384-dimensional normalized embedding for text."""
+    def generate_embedding(self, text: str) -> np.ndarray:
+        """Generate normalized embedding for text using real model only."""
         normalized_text = self._normalize_text(text)
         if not normalized_text:
-            normalized_text = 'empty'
+            # Use placeholder text to avoid empty embedding
+            normalized_text = '[empty document]'
+        
+        # Always use real model - no fallback
+        embedding = self.model.encode(normalized_text, normalize=True)
+        return embedding
 
-        if self.model is not None:
-            embedding = self.model.encode(normalized_text, normalize_embeddings=True)
-            return np.asarray(embedding, dtype=np.float32)
-
-        return self._fallback_embedding(normalized_text)
-
-    def add_document(self, doc_id, text):
-        """Add a document embedding to the FAISS index."""
+    def add_document(self, doc_id: int, text: str) -> None:
+        """Add a document embedding to the index."""
         embedding = self.generate_embedding(text)
         self.index.add(np.asarray([embedding], dtype=np.float32))
         idx = self.index.ntotal - 1
         self.doc_id_map[idx] = doc_id
         self.save_index()
 
-    def reset_index(self):
+    def reset_index(self) -> None:
         """Reset in-memory index and mapping."""
         self.index = self._new_index()
         self.doc_id_map = {}
 
-    def rebuild_index(self, doc_id_and_text):
-        """Rebuild index from a sequence of (doc_id, text) tuples."""
+    def rebuild_index(self, doc_id_and_text_list: List[Tuple[int, str]]) -> None:
+        """Rebuild index from a list of (doc_id, text) tuples."""
         self.reset_index()
 
-        if not doc_id_and_text:
+        if not doc_id_and_text_list:
             self.save_index()
             return
 
         embeddings = []
         document_ids = []
-        for doc_id, text in doc_id_and_text:
+        for doc_id, text in doc_id_and_text_list:
             embeddings.append(self.generate_embedding(text or ''))
             document_ids.append(doc_id)
 
@@ -157,7 +168,7 @@ class EmbeddingService:
         self.doc_id_map = {idx: doc_id for idx, doc_id in enumerate(document_ids)}
         self.save_index()
 
-    def search(self, query, top_k=5):
+    def search(self, query: str, top_k: int = 5) -> List[Dict]:
         """Search for semantically similar documents."""
         if self.index.ntotal == 0:
             return []
@@ -165,7 +176,10 @@ class EmbeddingService:
         top_k = max(1, int(top_k))
         query_embedding = self.generate_embedding(query)
         search_k = min(top_k, self.index.ntotal)
-        scores, indices = self.index.search(np.asarray([query_embedding], dtype=np.float32), search_k)
+        scores, indices = self.index.search(
+            np.asarray([query_embedding], dtype=np.float32), 
+            search_k
+        )
 
         results = []
         for score, idx in zip(scores[0], indices[0]):
@@ -178,8 +192,8 @@ class EmbeddingService:
                 )
         return results
 
-    def save_index(self):
-        """Persist FAISS index and vector mapping to disk."""
+    def save_index(self) -> None:
+        """Persist index and vector mapping to disk."""
         index_dir = Path(settings.FAISS_INDEX_PATH)
         os.makedirs(index_dir, exist_ok=True)
 
@@ -192,8 +206,8 @@ class EmbeddingService:
         with open(index_dir / 'doc_id_map.pkl', 'wb') as map_file:
             pickle.dump(self.doc_id_map, map_file)
 
-    def load_index(self):
-        """Load FAISS index and vector mapping from disk if available."""
+    def load_index(self) -> None:
+        """Load index and vector mapping from disk if available."""
         index_dir = Path(settings.FAISS_INDEX_PATH)
         index_path = index_dir / 'faiss_index.bin'
         numpy_index_path = index_dir / 'numpy_index.pkl'
@@ -214,5 +228,5 @@ class EmbeddingService:
             self.index = fallback_index
 
 
-# Global instance
+# Global singleton instance
 embedding_service = EmbeddingService()
