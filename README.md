@@ -16,7 +16,10 @@ Live demonstration of search functionality, task management, and analytics dashb
 
 ```bash
 # Backend
-cd backend && python manage.py migrate && python manage.py runserver
+cd backend
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 
 # Frontend  
 cd frontend && npm install && npm run dev
@@ -145,28 +148,6 @@ Batch indexing, incremental updates, index health, orphan cleanup.
 
 ---
 
-## 🎬 Demo Flow (YouTube)
-
-**[0:00–2:00]** Architecture walkthrough  
-**[2:00–4:00]** Admin: Upload doc, view index stats  
-**[4:00–6:00]** User: Semantic search + hybrid mode + task filter  
-**[6:00–8:00]** Analytics: Search trends, task completion, activity log  
-**[8:00–10:00]** Under the hood: Embedding vector → FAISS retrieval  
-
----
-
-## ⚡ Performance
-
-| Metric | Value |
-|--------|-------|
-| Search latency | ~50–100ms (FAISS in-memory) |
-| Indexing rate | ~10 docs/sec (batch mode) |
-| Vector dimension | 384 (all-MiniLM-L6-v2) |
-| Chunk size | 500 words (configurable) |
-| Avg chunk overlap | 100 words |
-
----
-
 ## 🔧 Tech Stack
 
 | Layer | Tech |
@@ -193,18 +174,7 @@ GET    /api/admin/index/stats         # Index health
 
 ---
 
-## 🚢 What Makes This Stand Out
-
-✅ **Embedding-based retrieval** — Not a keyword wrapper  
-✅ **Hybrid ranking** — Semantic + keyword + signals  
-✅ **Production patterns** — Batch ops, monitoring, audit trail  
-✅ **Role-aware UX** — Different dashboards for admin/user  
-✅ **Measurable** — Eval table, activity logs, analytics  
-✅ **Scalable schema** — Proper FKs, normalization  
-
----
-
-## 📚 References
+## � References
 
 - [SentenceTransformers Docs](https://www.sbert.net/)
 - [FAISS GitHub](https://github.com/facebookresearch/faiss)
@@ -214,141 +184,3 @@ GET    /api/admin/index/stats         # Index health
 ---
 
 **Production-grade system. Intentional choices. No boilerplate.** 🎯
-```bash
-cd backend
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Run setup script:
-```bash
-# On Windows
-setup.bat
-
-# On Linux/Mac
-chmod +x setup.sh
-./setup.sh
-```
-
-4. Create admin user:
-```bash
-python manage.py createsuperuser
-```
-
-5. Start development server:
-```bash
-python manage.py runserver
-```
-
-The API will be available at `http://localhost:8000/api/`
-
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/login` - User login, returns JWT token
-
-### Tasks
-- `GET /api/tasks` - Get tasks (filtered by user role)
-- `POST /api/tasks` - Create task (admin only)
-- `PUT /api/tasks/{id}` - Update task status
-
-### Documents
-- `POST /api/documents` - Upload document (admin only)
-- `GET /api/documents` - List all documents
-- `GET /api/documents/{id}` - Document detail
-
-### Search
-- `POST /api/search` - Semantic search
-
-### Analytics
-- `GET /api/analytics` - Get system analytics (admin only)
-
-## Environment Variables
-
-Create a `.env` file in the backend directory:
-
-```env
-# Database
-DATABASE_URL=  # Recommended for PlanetScale
-USE_MYSQL=False
-DB_NAME=
-DB_USER=
-DB_PASSWORD=
-DB_HOST=
-DB_PORT=3306
-DB_SSL_REQUIRED=False
-
-# Django
-SECRET_KEY=your-secret-key
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-
-# JWT
-JWT_SECRET=your-jwt-secret
-JWT_EXPIRATION_HOURS=24
-
-# Clerk
-CLERK_AUTH_ENABLED=False
-CLERK_ISSUER=
-CLERK_JWKS_URL=
-CLERK_JWT_AUDIENCE=
-CLERK_AUTO_CREATE_USERS=True
-CLERK_DEFAULT_ROLE=user
-
-# File Upload
-MAX_UPLOAD_SIZE_MB=10
-```
-
-## Database Schema
-
-- **roles**: User roles (admin, user)
-- **users**: User accounts with role assignment
-- **tasks**: Task assignments and status
-- **documents**: Uploaded documents with metadata
-- **activity_logs**: User activity tracking
-
-## Development
-
-### Running Tests
-
-```bash
-cd backend
-pytest
-```
-
-### Database Migrations
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-### Creating Test Data
-
-```bash
-python manage.py seed_roles
-```
-
-## Deployment
-
-### Backend (Render)
-
-1. Create a new Web Service on Render
-2. Connect your GitHub repository
-3. Set environment variables
-4. Deploy
-
-### Frontend (Vercel)
-
-1. Create a new project on Vercel
-2. Connect your GitHub repository
-3. Set environment variables
-4. Deploy
-
-## License
-
-MIT License
