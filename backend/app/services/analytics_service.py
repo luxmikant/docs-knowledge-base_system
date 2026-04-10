@@ -1,7 +1,8 @@
 """Analytics service for system metrics and insights."""
 
 from typing import Dict, Any
-from datetime import datetime, timedelta
+from datetime import timedelta
+from django.utils import timezone
 from django.db.models import Count, Q, Sum
 from app.models import Task, Document, ActivityLog, Chunk, User
 
@@ -64,7 +65,7 @@ class AnalyticsService:
     
     def get_search_analytics(self, days: int = 7) -> Dict[str, Any]:
         """Get search-related metrics."""
-        cutoff_date = datetime.now() - timedelta(days=days)
+        cutoff_date = timezone.now() - timedelta(days=days)
         
         # Count search activities
         search_logs = ActivityLog.objects.filter(
@@ -164,7 +165,7 @@ class AnalyticsService:
     def get_comprehensive_analytics(self, search_days: int = 7) -> Dict[str, Any]:
         """Get all analytics in one response."""
         return {
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': timezone.now().isoformat(),
             'tasks': self.get_task_analytics(),
             'documents': self.get_document_analytics(),
             'search': self.get_search_analytics(days=search_days),

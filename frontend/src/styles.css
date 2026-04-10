@@ -528,3 +528,119 @@ button:disabled:hover {
   border-left-color: #6cc1ad !important;
 }
 
+/* Analytics Page Styles */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.metric-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.metric-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-card .metric-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0.5rem 0;
+}
+
+.metric-card small {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel ul li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel ul li:last-child {
+  border-bottom: none;
+}
+
+.panel ul li span {
+  flex: 1;
+}
+
+.panel ul li .count {
+  font-weight: 600;
+  color: var(--accent);
+  text-align: right;
+  min-width: 80px;
+}
+
+.panel ul li .status {
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: right;
+  min-width: 100px;
+}
+
+.panel ul li .status.healthy {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.panel ul li .status.warning {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+@media (max-width: 768px) {
+  .metric-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-card .metric-value {
+    font-size: 1.8rem;
+  }
+}
+

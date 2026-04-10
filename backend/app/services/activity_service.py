@@ -2,7 +2,7 @@
 Activity logging service
 """
 import json
-from datetime import datetime
+from django.utils import timezone
 from ..models import ActivityLog
 
 
@@ -26,6 +26,6 @@ def log_error(user, error_type, details):
         details=json.dumps({
             'error_type': error_type,
             'details': details,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': timezone.now().isoformat()
         })
     )

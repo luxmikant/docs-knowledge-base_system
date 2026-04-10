@@ -2,7 +2,13 @@
 
 > **Knowledge assistants for task execution.** Upload documents, find answers, execute tasks—all with intelligent embedding-based search.
 
-[**▶️ Watch Demo Video**] (YouTube link here)
+## 🎬 Demo Videos
+
+**[▶️ PART 1: System Architecture & Features](https://www.youtube.com/watch?v=4Gth0RTITfY)**  
+Overview of semantic search system, architecture design, and key components.
+
+**[▶️ PART 2: Live Testing & Performance](https://youtu.be/oIsTEHYQQLE)**  
+Live demonstration of search functionality, task management, and analytics dashboard.
 
 ---
 
